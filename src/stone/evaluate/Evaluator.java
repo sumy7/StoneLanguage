@@ -2,13 +2,18 @@ package stone.evaluate;
 
 import stone.ast.ASTLeaf;
 import stone.ast.ASTList;
+import stone.ast.Arguments;
 import stone.ast.BinaryExpr;
 import stone.ast.BlockStmnt;
+import stone.ast.DefStmnt;
+import stone.ast.Fun;
 import stone.ast.IfStmnt;
 import stone.ast.Name;
 import stone.ast.NegativeExpr;
 import stone.ast.NullStmnt;
 import stone.ast.NumberLiteral;
+import stone.ast.ParameterList;
+import stone.ast.Postfix;
 import stone.ast.PrimaryExpr;
 import stone.ast.StringLiteral;
 import stone.ast.WhileStmnt;
@@ -37,4 +42,18 @@ public interface Evaluator {
     public Object eval(Environment env, NullStmnt ast);
 
     public Object eval(Environment env, PrimaryExpr ast);
+
+    public Object eval(Environment env, DefStmnt ast);
+
+    public void eval(Environment env, ParameterList ast, int index, Object value);
+
+    public Object eval(Environment env, ParameterList ast);
+
+    public Object eval(Environment env, Postfix ast);
+
+    public Object eval(Environment env, Arguments ast);
+
+    public Object eval(Environment env, Arguments ast, Object value);
+
+    public Object eval(Environment env, Fun ast);
 }
