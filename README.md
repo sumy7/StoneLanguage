@@ -22,4 +22,6 @@ Stone 是运行于Java虚拟机的无类型的脚本语言。
 
 # 运行
 
-参见 Wiki （建设中...）
+    java stone.Stone <Source File>
+
+详见 Wiki （建设中...）
