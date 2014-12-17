@@ -3,13 +3,18 @@ package stone.evaluate;
 import stone.ast.ASTLeaf;
 import stone.ast.ASTList;
 import stone.ast.ASTree;
+import stone.ast.Arguments;
 import stone.ast.BinaryExpr;
 import stone.ast.BlockStmnt;
+import stone.ast.DefStmnt;
+import stone.ast.Fun;
 import stone.ast.IfStmnt;
 import stone.ast.Name;
 import stone.ast.NegativeExpr;
 import stone.ast.NullStmnt;
 import stone.ast.NumberLiteral;
+import stone.ast.ParameterList;
+import stone.ast.Postfix;
 import stone.ast.PrimaryExpr;
 import stone.ast.StringLiteral;
 import stone.ast.WhileStmnt;
@@ -167,7 +172,61 @@ public class BasicEvaluator implements Evaluator {
 
     @Override
     public Object eval(Environment env, PrimaryExpr ast) {
+        Object res = ast.operand().eval(env, this);
+        int n = ast.numChildren();
+        for (int i = 1; i < n; i++) {
+            res = ast.postfix(i).eval(env, this, res);
+        }
+        return res;
+    }
+
+    @Override
+    public Object eval(Environment env, DefStmnt ast) {
+        env.putNew(ast.name(), new Function(ast.parameters(), ast.body(), env));
+        return ast.name();
+    }
+
+    @Override
+    public Object eval(Environment env, ParameterList ast) {
+        throw new StoneException("cannot eval in this method.");
+    }
+
+    @Override
+    public Object eval(Environment env, Postfix ast) {
         throw new StoneException("cannot eval: " + ast.toString(), ast);
+    }
+
+    @Override
+    public Object eval(Environment env, Arguments ast) {
+        throw new StoneException("cannot eval in this method.");
+    }
+
+    @Override
+    public void eval(Environment env, ParameterList ast, int index, Object value) {
+        env.putNew(ast.name(index), value);
+    }
+
+    @Override
+    public Object eval(Environment env, Arguments ast, Object value) {
+        if (!(value instanceof Function)) {
+            throw new StoneException("bad function", ast);
+        }
+        Function func = (Function) value;
+        ParameterList params = func.prarmeters();
+        if (ast.size() != params.size()) {
+            throw new StoneException("bad number of arguments", ast);
+        }
+        Environment newEnv = func.makeEnv();
+        int num = 0;
+        for (ASTree a : ast) {
+            params.eval(newEnv, this, num++, a.eval(env, this));
+        }
+        return func.body().eval(newEnv, this);
+    }
+
+    @Override
+    public Object eval(Environment env, Fun ast) {
+        return new Function(ast.parameters(), ast.body(), env);
     }
 
 }

@@ -6,18 +6,19 @@ import java.io.FileReader;
 
 import stone.ast.ASTree;
 import stone.ast.NullStmnt;
-import stone.evaluate.BasicEnv;
 import stone.evaluate.BasicEvaluator;
 import stone.evaluate.Environment;
 import stone.evaluate.Evaluator;
+import stone.evaluate.NestedEnv;
 import stone.exception.ParseException;
 import stone.lexer.Lexer;
 import stone.parser.BasicParser;
+import stone.parser.ClosureParser;
 import stone.token.Token;
 
 public class Stone {
-    private static BasicParser parser = new BasicParser();
-    private static Environment env = new BasicEnv();
+    private static BasicParser parser = new ClosureParser();
+    private static Environment env = new NestedEnv();
     private static Evaluator eval = new BasicEvaluator();
 
     public static void main(String[] args) {
