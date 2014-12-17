@@ -10,7 +10,7 @@ public class BasicEnv implements Environment {
 
     public BasicEnv() {
         values = new HashMap<String, Object>();
-        values.put("version", "0.1");
+        values.put("version", "0.2");
     }
 
     @Override
