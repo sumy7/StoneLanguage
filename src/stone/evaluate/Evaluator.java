@@ -3,6 +3,8 @@ package stone.evaluate;
 import stone.ast.ASTLeaf;
 import stone.ast.ASTList;
 import stone.ast.Arguments;
+import stone.ast.ArrayLiteral;
+import stone.ast.ArrayRef;
 import stone.ast.BinaryExpr;
 import stone.ast.BlockStmnt;
 import stone.ast.ClassBody;
@@ -65,4 +67,8 @@ public interface Evaluator {
     public Object eval(Environment env, ClassStmnt ast);
 
     public Object eval(Environment env, Dot ast, Object value);
+
+    public Object eval(Environment env, ArrayLiteral ast);
+
+    public Object eval(Environment env, ArrayRef ast, Object value);
 }
