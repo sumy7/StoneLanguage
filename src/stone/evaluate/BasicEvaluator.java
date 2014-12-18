@@ -6,7 +6,10 @@ import stone.ast.ASTree;
 import stone.ast.Arguments;
 import stone.ast.BinaryExpr;
 import stone.ast.BlockStmnt;
+import stone.ast.ClassBody;
+import stone.ast.ClassStmnt;
 import stone.ast.DefStmnt;
+import stone.ast.Dot;
 import stone.ast.Fun;
 import stone.ast.IfStmnt;
 import stone.ast.Name;
@@ -18,6 +21,7 @@ import stone.ast.Postfix;
 import stone.ast.PrimaryExpr;
 import stone.ast.StringLiteral;
 import stone.ast.WhileStmnt;
+import stone.evaluate.StoneObject.AccessException;
 import stone.exception.StoneException;
 
 public class BasicEvaluator implements Evaluator {
@@ -72,6 +76,23 @@ public class BasicEvaluator implements Evaluator {
         if ("=".equals(op)) {
             Object right = ast.right().eval(env, this);
             ASTree l = ast.left();
+            if (l instanceof PrimaryExpr) {
+                PrimaryExpr p = (PrimaryExpr) l;
+                if (p.hasPostfix(0) && p.postfix(0) instanceof Dot) {
+                    Object t = evalSubExpr(env, p, 1);
+                    if (t instanceof StoneObject) {
+                        StoneObject obj = (StoneObject) t;
+                        String name = ((Dot) p.postfix(0)).name();
+                        try {
+                            obj.write(name, right);
+                            return right;
+                        } catch (AccessException e) {
+                            throw new StoneException("bad member access "
+                                    + ast.location() + ":" + name);
+                        }
+                    }
+                }
+            }
             if (l instanceof Name) {
                 env.put(((Name) l).name(), right);
                 return right;
@@ -170,14 +191,18 @@ public class BasicEvaluator implements Evaluator {
         throw new StoneException("cannot eval: " + ast.toString(), ast);
     }
 
+    public Object evalSubExpr(Environment env, PrimaryExpr ast, int nest) {
+        if (ast.hasPostfix(nest)) {
+            Object target = evalSubExpr(env, ast, nest + 1);
+            return ast.postfix(nest).eval(env, this, target);
+        } else {
+            return ast.operand().eval(env, this);
+        }
+    }
+
     @Override
     public Object eval(Environment env, PrimaryExpr ast) {
-        Object res = ast.operand().eval(env, this);
-        int n = ast.numChildren();
-        for (int i = 1; i < n; i++) {
-            res = ast.postfix(i).eval(env, this, res);
-        }
-        return res;
+        return evalSubExpr(env, ast, 0);
     }
 
     @Override
@@ -241,6 +266,51 @@ public class BasicEvaluator implements Evaluator {
     @Override
     public Object eval(Environment env, Fun ast) {
         return new Function(ast.parameters(), ast.body(), env);
+    }
+
+    @Override
+    public Object eval(Environment env, ClassBody ast) {
+        for (ASTree t : ast) {
+            t.eval(env, this);
+        }
+        return null;
+    }
+
+    @Override
+    public Object eval(Environment env, ClassStmnt ast) {
+        ClassInfo ci = new ClassInfo(ast, env);
+        env.put(ast.name(), ci);
+        return ast.name();
+    }
+
+    protected void initObject(ClassInfo ci, Environment env) {
+        if (ci.superClass() != null) {
+            initObject(ci.superClass(), env);
+        }
+        ci.body().eval(env, this);
+    }
+
+    @Override
+    public Object eval(Environment env, Dot ast, Object value) {
+        String member = ast.name();
+        if (value instanceof ClassInfo) {
+            if ("new".equals(member)) {
+                ClassInfo ci = (ClassInfo) value;
+                NestedEnv e = new NestedEnv(ci.environment());
+                StoneObject so = new StoneObject(e);
+                e.putNew("this", so);
+                initObject(ci, e);
+                return so;
+            }
+        } else if (value instanceof StoneObject) {
+            try {
+                return ((StoneObject) value).read(member);
+            } catch (AccessException e) {
+            }
+        }
+
+        throw new StoneException("bad member access: " + member, ast);
+
     }
 
 }

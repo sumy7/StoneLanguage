@@ -11,7 +11,7 @@ import stone.evaluate.NestedEnv;
 import stone.exception.ParseException;
 import stone.lexer.Lexer;
 import stone.parser.BasicParser;
-import stone.parser.ClosureParser;
+import stone.parser.ClassParser;
 import stone.token.Token;
 
 public class Runner {
@@ -19,7 +19,9 @@ public class Runner {
         // run(new BasicParser(), new BasicEnv(), new BasicEvaluator());
         // run(new FunParser(), new NestedEnv(), new BasicEvaluator());
         // run(new ClosureParser(), new NestedEnv(), new BasicEvaluator());
-        run(new ClosureParser(), new BuildInConst().environment(new Natives()
+        // run(new ClosureParser(), new BuildInConst().environment(new Natives()
+        // .environment(new NestedEnv())), new BasicEvaluator());
+        run(new ClassParser(), new BuildInConst().environment(new Natives()
                 .environment(new NestedEnv())), new BasicEvaluator());
     }
 

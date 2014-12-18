@@ -19,12 +19,7 @@ public class PrimaryExpr extends ASTList {
     }
 
     public Postfix postfix(int nest) {
-        // System.out.println(this.toString());
-        // System.out.println(numChildren());
-        // System.out.println(child(0));
-        // System.out.println(child(1));
-        // System.out.println(nest);
-        return (Postfix) child(nest);
+        return (Postfix) child(numChildren() - nest - 1);
     }
 
     public boolean hasPostfix(int nest) {
