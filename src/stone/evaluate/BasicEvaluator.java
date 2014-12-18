@@ -4,6 +4,8 @@ import stone.ast.ASTLeaf;
 import stone.ast.ASTList;
 import stone.ast.ASTree;
 import stone.ast.Arguments;
+import stone.ast.ArrayLiteral;
+import stone.ast.ArrayRef;
 import stone.ast.BinaryExpr;
 import stone.ast.BlockStmnt;
 import stone.ast.ClassBody;
@@ -91,6 +93,18 @@ public class BasicEvaluator implements Evaluator {
                                     + ast.location() + ":" + name);
                         }
                     }
+                }
+                if (p.hasPostfix(0) && p.postfix(0) instanceof ArrayRef) {
+                    Object a = evalSubExpr(env, p, 1);
+                    if (a instanceof Object[]) {
+                        ArrayRef aref = (ArrayRef) p.postfix(0);
+                        Object index = aref.index().eval(env, this);
+                        if (index instanceof Integer) {
+                            ((Object[]) a)[(Integer) index] = right;
+                            return right;
+                        }
+                    }
+                    throw new StoneException("bad array access", ast);
                 }
             }
             if (l instanceof Name) {
@@ -311,6 +325,28 @@ public class BasicEvaluator implements Evaluator {
 
         throw new StoneException("bad member access: " + member, ast);
 
+    }
+
+    @Override
+    public Object eval(Environment env, ArrayLiteral ast) {
+        int s = ast.numChildren();
+        Object[] res = new Object[s];
+        int i = 0;
+        for (ASTree t : ast) {
+            res[i++] = t.eval(env, this);
+        }
+        return res;
+    }
+
+    @Override
+    public Object eval(Environment env, ArrayRef ast, Object value) {
+        if (value instanceof Object[]) {
+            Object index = ast.index().eval(env, this);
+            if (index instanceof Integer) {
+                return ((Object[]) value)[(Integer) index];
+            }
+        }
+        throw new StoneException("bad array access", ast);
     }
 
 }
