@@ -15,11 +15,11 @@ import stone.evaluate.NestedEnv;
 import stone.exception.ParseException;
 import stone.lexer.Lexer;
 import stone.parser.BasicParser;
-import stone.parser.ClosureParser;
+import stone.parser.ClassParser;
 import stone.token.Token;
 
 public class Stone {
-    private static BasicParser parser = new ClosureParser();
+    private static BasicParser parser = new ClassParser();
     private static Environment env = new BuildInConst()
             .environment(new Natives().environment(new NestedEnv()));
     private static Evaluator eval = new BasicEvaluator();

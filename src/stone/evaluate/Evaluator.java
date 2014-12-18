@@ -5,7 +5,10 @@ import stone.ast.ASTList;
 import stone.ast.Arguments;
 import stone.ast.BinaryExpr;
 import stone.ast.BlockStmnt;
+import stone.ast.ClassBody;
+import stone.ast.ClassStmnt;
 import stone.ast.DefStmnt;
+import stone.ast.Dot;
 import stone.ast.Fun;
 import stone.ast.IfStmnt;
 import stone.ast.Name;
@@ -56,4 +59,10 @@ public interface Evaluator {
     public Object eval(Environment env, Arguments ast, Object value);
 
     public Object eval(Environment env, Fun ast);
+
+    public Object eval(Environment env, ClassBody ast);
+
+    public Object eval(Environment env, ClassStmnt ast);
+
+    public Object eval(Environment env, Dot ast, Object value);
 }
