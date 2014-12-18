@@ -8,6 +8,6 @@ public class BuildInConst {
     }
 
     protected void appendEnv(Environment env) {
-        env.put("version", "0.2");
+        env.put("VERSION", "0.3");
     }
 }
