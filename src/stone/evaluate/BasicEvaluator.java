@@ -208,6 +208,20 @@ public class BasicEvaluator implements Evaluator {
 
     @Override
     public Object eval(Environment env, Arguments ast, Object value) {
+        if (value instanceof NativeFunction) {
+            NativeFunction func = (NativeFunction) value;
+            int nparams = func.numOfParameters();
+            if (ast.size() != nparams) {
+                throw new StoneException("bad number of arguments", ast);
+            }
+            Object[] args = new Object[nparams];
+            int num = 0;
+            for (ASTree a : ast) {
+                args[num++] = a.eval(env, this);
+            }
+            return func.invoke(args, ast);
+        }
+
         if (!(value instanceof Function)) {
             throw new StoneException("bad function", ast);
         }

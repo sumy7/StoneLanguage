@@ -3,8 +3,10 @@ package stone.test;
 import stone.ast.ASTree;
 import stone.ast.NullStmnt;
 import stone.evaluate.BasicEvaluator;
+import stone.evaluate.BuildInConst;
 import stone.evaluate.Environment;
 import stone.evaluate.Evaluator;
+import stone.evaluate.Natives;
 import stone.evaluate.NestedEnv;
 import stone.exception.ParseException;
 import stone.lexer.Lexer;
@@ -16,7 +18,9 @@ public class Runner {
     public static void main(String[] args) throws ParseException {
         // run(new BasicParser(), new BasicEnv(), new BasicEvaluator());
         // run(new FunParser(), new NestedEnv(), new BasicEvaluator());
-        run(new ClosureParser(), new NestedEnv(), new BasicEvaluator());
+        // run(new ClosureParser(), new NestedEnv(), new BasicEvaluator());
+        run(new ClosureParser(), new BuildInConst().environment(new Natives()
+                .environment(new NestedEnv())), new BasicEvaluator());
     }
 
     public static void run(BasicParser bp, Environment env, Evaluator eval)
